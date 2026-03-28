@@ -99,12 +99,15 @@
         statusEl.innerText = "Ищем рабочие прокси...";
         statusEl.className = "status";
         try {
-            const response = await fetch('https://raw.githubusercontent.com/Argh94/Proxy-List/main/mtproto.txt');
+            const response = await fetch('https://raw.githubusercontent.com/ALIILAPRO/MTProtoProxy/main/mtproto.txt');
             const text = await response.text();
             console.log("[App] Файл со списком успешно скачан, размер:", text.length, "байт");
             
-            // Находим все ссылки, начинающиеся с tg://proxy
-            proxies = text.match(/tg:\/\/proxy\?[^\s]+/g) || [];
+            // Находим все ссылки форматов tg://proxy или https://t.me/proxy
+            const matches = text.match(/(tg:\/\/proxy\?|https:\/\/t\.me\/proxy\?)[^\s"']+/g) || [];
+            
+            // Приводим все к deep-link формату tg://proxy для прямого открытия приложения
+            proxies = matches.map(link => link.replace('https://t.me/proxy?', 'tg://proxy?'));
             console.log("[App] Найдено прокси в тексте:", proxies.length);
             
             if (proxies.length > 0) {
