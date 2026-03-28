@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -17,27 +18,31 @@
             min-height: 90vh;
             text-align: center;
         }
+
         .container {
             width: 100%;
             max-width: 500px;
             background: white;
             padding: 30px 20px;
             border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             box-sizing: border-box;
         }
+
         h1 {
             font-size: 28px;
             color: #333;
             margin-top: 0;
             margin-bottom: 10px;
         }
+
         p.info {
             font-size: 16px;
             line-height: 1.5;
             color: #666;
             margin-bottom: 20px;
         }
+
         .status {
             font-size: 22px;
             font-weight: bold;
@@ -45,6 +50,7 @@
             min-height: 30px;
             color: #888;
         }
+
         button {
             width: 100%;
             padding: 25px 10px;
@@ -57,105 +63,136 @@
             transition: transform 0.1s;
             box-sizing: border-box;
         }
+
         button:active {
             transform: scale(0.97);
         }
-        .btn-connect { 
-            background-color: #2aabee; 
-            color: white; 
-            box-shadow: 0 5px 15px rgba(42,171,238,0.4); 
+
+        .btn-connect {
+            background-color: #2aabee;
+            color: white;
+            box-shadow: 0 5px 15px rgba(42, 171, 238, 0.4);
         }
-        .btn-next { 
-            background-color: #e4e6eb; 
-            color: #333; 
+
+        .btn-next {
+            background-color: #e4e6eb;
+            color: #333;
         }
-        .green { color: #4caf50; }
-        .red { color: #f44336; }
+
+        .green {
+            color: #4caf50;
+        }
+
+        .red {
+            color: #f44336;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h1>Прокси для Телеграм</h1>
-    <p class="info">
-        Нажмите <b>«Подключить»</b> — откроется Telegram.<br>
-        Если он долго не подключается, вернитесь сюда и нажмите <b>«Другой прокси»</b>.
-    </p>
+    <div class="container">
+        <h1>Прокси для Телеграм</h1>
+        <p class="info">
+            Нажмите <b>«Подключить»</b> — откроется Telegram.<br>
+            Если он долго не подключается, вернитесь сюда и нажмите <b>«Другой прокси»</b>.
+        </p>
 
-    <div id="statusText" class="status">Загрузка списка...</div>
+        <div id="statusText" class="status">Загрузка списка...</div>
 
-    <button class="btn-connect" onclick="connectProxy()">Подключить прокси</button>
-    <button class="btn-next" onclick="nextProxy()">Дать другой</button>
-</div>
+        <button class="btn-connect" onclick="connectProxy()">Подключить прокси</button>
+        <button class="btn-next" onclick="nextProxy()">Дать другой</button>
+    </div>
 
-<script>
-    let proxies = [];
-    let currentIndex = 0;
-    const statusEl = document.getElementById('statusText');
+    <script>
+        let proxies = [];
+        let currentIndex = 0;
+        const statusEl = document.getElementById('statusText');
 
-    // Функция загрузки списка прокси при открытии страницы
-    async function loadProxies() {
-        console.log("[App] Запуск загрузки списка прокси...");
-        statusEl.innerText = "Ищем рабочие прокси...";
-        statusEl.className = "status";
-        try {
-            const response = await fetch('https://github.com/Grim1313/mtproto-for-telegram/blob/1b9bd040e8852446e68c0e7baa68804b8ee06edc/all_proxies.txt');
-            const text = await response.text();
-            console.log("[App] Файл со списком успешно скачан, размер:", text.length, "байт");
+        // Функция загрузки списка прокси при открытии страницы
+        async function loadProxies() {
+            currentIndex = 0;
+            document.querySelector('.btn-connect').style.opacity = '1';
+            document.querySelector('.btn-next').style.opacity = '1';
             
-            // Находим все ссылки форматов tg://proxy или https://t.me/proxy
-            const matches = text.match(/(tg:\/\/proxy\?|https:\/\/t\.me\/proxy\?)[^\s"']+/g) || [];
-            
-            // Приводим все к deep-link формату tg://proxy для прямого открытия приложения
-            proxies = matches.map(link => link.replace('https://t.me/proxy?', 'tg://proxy?'));
-            console.log("[App] Найдено прокси в тексте:", proxies.length);
-            
-            if (proxies.length > 0) {
-                statusEl.innerText = `Найдено прокси: ${proxies.length}`;
-            } else {
-                console.warn("[App] В скачанном файле не найдено ссылок формата tg://proxy");
-                statusEl.innerText = "Ошибка: пустой список";
+            console.log("[App] Запуск загрузки списка прокси...");
+            statusEl.innerText = "Ищем рабочие прокси...";
+            statusEl.className = "status";
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/Argh94/Proxy-List/main/MTProto.txt');
+                const text = await response.text();
+                console.log("[App] Файл со списком успешно скачан, размер:", text.length, "байт");
+
+                // Находим все ссылки форматов tg://proxy или https://t.me/proxy
+                const matches = text.match(/(tg:\/\/proxy\?|https:\/\/t\.me\/proxy\?)[^\s"']+/g) || [];
+
+                // Приводим все к deep-link формату tg://proxy для прямого открытия приложения
+                proxies = matches.map(link => link.replace('https://t.me/proxy?', 'tg://proxy?'));
+                console.log("[App] Найдено прокси в тексте:", proxies.length);
+
+                // Перемешиваем массив (алгоритм Фишера-Йетса), чтобы давать случайные прокси
+                for (let i = proxies.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [proxies[i], proxies[j]] = [proxies[j], proxies[i]];
+                }
+
+                if (proxies.length > 0) {
+                    statusEl.innerText = `Найдено ${proxies.length} случайных прокси`;
+                } else {
+                    console.warn("[App] В скачанном файле не найдено ссылок формата tg://proxy");
+                    statusEl.innerText = "Ошибка: пустой список";
+                    statusEl.className = "status red";
+                }
+            } catch (e) {
+                console.error("[App] Ошибка при скачивании списка прокси:", e);
+                statusEl.innerText = "Ошибка сети";
                 statusEl.className = "status red";
             }
-        } catch (e) {
-            console.error("[App] Ошибка при скачивании списка прокси:", e);
-            statusEl.innerText = "Ошибка сети";
-            statusEl.className = "status red";
         }
-    }
 
-    // 1. Кнопка "Подключить"
-    function connectProxy() {
-        if (proxies.length > 0 && proxies[currentIndex]) {
-            console.log("[App] Нажата кнопка 'Подключить', используем прокси:", proxies[currentIndex]);
-            window.location.href = proxies[currentIndex];
-            statusEl.innerText = "Проверяйте в Telegram!";
-            statusEl.className = "status green";
-        } else {
-            console.warn("[App] Попытка подключения, но список прокси пуст или не загружен");
-            alert("Подождите загрузки списка или перезагрузите страницу.");
-        }
-    }
-
-    // 2. Кнопка "Другой прокси"
-    function nextProxy() {
-        if (proxies.length > 0) {
-            currentIndex++;
-            if (currentIndex >= proxies.length) {
-                currentIndex = 0;
+        // 1. Кнопка "Подключить"
+        function connectProxy() {
+            if (currentIndex >= proxies.length && proxies.length > 0) {
+                alert("Больше прокси нет. Зайдите на сайт позже.");
+                return;
             }
-            console.log("[App] Нажата кнопка 'Другой прокси', переключаем на индекс:", currentIndex);
-            statusEl.innerText = `Выбран прокси #${currentIndex + 1}`;
-            statusEl.className = "status";
-        } else {
-            console.warn("[App] Попытка переключения, но список пуст. Вызываем повторную загрузку.");
-            loadProxies();
+            if (proxies.length > 0 && proxies[currentIndex]) {
+                console.log("[App] Нажата кнопка 'Подключить', используем случайный прокси:", proxies[currentIndex]);
+                window.location.href = proxies[currentIndex];
+                statusEl.innerText = "Проверяйте в Telegram!";
+                statusEl.className = "status green";
+            } else {
+                console.warn("[App] Попытка подключения, но список прокси пуст или не загружен");
+                alert("Подождите загрузки списка или перезагрузите страницу.");
+            }
         }
-    }
 
-    // Запускаем загрузку списка сразу при открытии страницы
-    window.onload = loadProxies;
-</script>
+        // 2. Кнопка "Другой прокси"
+        function nextProxy() {
+            if (proxies.length > 0) {
+                currentIndex++;
+                if (currentIndex >= proxies.length) {
+                    console.log("[App] Список прокси закончился.");
+                    statusEl.innerText = "Больше прокси нет, зайдите на сайт позже.";
+                    statusEl.className = "status red";
+                    
+                    document.querySelector('.btn-connect').style.opacity = '0.5';
+                    document.querySelector('.btn-next').style.opacity = '0.5';
+                } else {
+                    console.log("[App] Нажата кнопка 'Другой прокси', переключаем на индекс:", currentIndex);
+                    statusEl.innerText = `Случайный прокси #${currentIndex + 1} из ${proxies.length}`;
+                    statusEl.className = "status";
+                }
+            } else {
+                console.warn("[App] Попытка переключения, но список пуст. Вызываем повторную загрузку.");
+                loadProxies();
+            }
+        }
+
+        // Запускаем загрузку списка сразу при открытии страницы
+        window.onload = loadProxies;
+    </script>
 
 </body>
+
 </html>
