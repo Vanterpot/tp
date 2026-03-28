@@ -99,7 +99,7 @@
         statusEl.innerText = "Ищем рабочие прокси...";
         statusEl.className = "status";
         try {
-            const response = await fetch('https://raw.githubusercontent.com/ALIILAPRO/MTProtoProxy/main/mtproto.txt');
+            const response = await fetch('https://github.com/Grim1313/mtproto-for-telegram/blob/master/all_proxies.txt');
             const text = await response.text();
             console.log("[App] Файл со списком успешно скачан, размер:", text.length, "байт");
             
