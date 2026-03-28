@@ -119,33 +119,46 @@
             statusEl.innerText = "Ищем рабочие прокси...";
             statusEl.className = "status";
             try {
-                const response = await fetch('https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt');
-                const text = await response.text();
-                console.log("[App] Файл со списком успешно скачан, размер:", text.length, "байт");
+                // Список нескольких надежных репозиториев для максимального объема прокси
+                const sources = [
+                    'https://raw.githubusercontent.com/Argh94/Proxy-List/main/MTProto.txt',
+                    'https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt',
+                    'https://raw.githubusercontent.com/ALIILAPRO/MTProtoProxy/main/mtproto.txt',
+                    'https://raw.githubusercontent.com/hookzof/socks5_list/master/tg/mtproto.txt'
+                ];
+
+                const fetches = sources.map(url => fetch(url).then(res => res.ok ? res.text() : '').catch(() => ''));
+                const results = await Promise.all(fetches);
+                const combinedText = results.join('\n');
+                
+                console.log("[App] Файлы со списками скачаны. Общий размер:", combinedText.length, "байт");
 
                 // Находим все ссылки форматов tg://proxy или https://t.me/proxy
-                const matches = text.match(/(tg:\/\/proxy\?|https:\/\/t\.me\/proxy\?)[^\s"']+/g) || [];
+                const matches = combinedText.match(/(tg:\/\/proxy\?|https:\/\/t\.me\/proxy\?)[^\s"']+/g) || [];
 
-                // Приводим все к deep-link формату tg://proxy для прямого открытия приложения
-                proxies = matches.map(link => link.replace('https://t.me/proxy?', 'tg://proxy?'));
-                console.log("[App] Найдено прокси в тексте:", proxies.length);
+                // Приводим все к deep-link формату tg://proxy
+                const allLinks = matches.map(link => link.replace('https://t.me/proxy?', 'tg://proxy?'));
+                
+                // Удаляем дубликаты
+                proxies = [...new Set(allLinks)];
+                console.log("[App] Найдено уникальных прокси со всех источников:", proxies.length);
 
-                // Перемешиваем массив (алгоритм Фишера-Йетса), чтобы давать случайные прокси
+                // Перемешиваем массив (алгоритм Фишера-Йетса)
                 for (let i = proxies.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [proxies[i], proxies[j]] = [proxies[j], proxies[i]];
                 }
 
                 if (proxies.length > 0) {
-                    statusEl.innerText = `Найдено ${proxies.length} случайных прокси`;
+                    statusEl.innerText = `Собрано ${proxies.length} случайных прокси!`;
                 } else {
-                    console.warn("[App] В скачанном файле не найдено ссылок формата tg://proxy");
-                    statusEl.innerText = "Ошибка: пустой список";
+                    console.warn("[App] Ни в одном из скачанных файлов не найдено ссылок формата tg://proxy");
+                    statusEl.innerText = "Ошибка: не удалось найти рабочие списки";
                     statusEl.className = "status red";
                 }
             } catch (e) {
-                console.error("[App] Ошибка при скачивании списка прокси:", e);
-                statusEl.innerText = "Ошибка сети";
+                console.error("[App] Ошибка при скачивании списков прокси:", e);
+                statusEl.innerText = "Ошибка загрузки данных";
                 statusEl.className = "status red";
             }
         }
